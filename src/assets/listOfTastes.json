@@ -1,0 +1,65 @@
+[
+  ["Cremas", [
+    "Americana",
+    "Banana Carioca",
+    "Bananita Dolca",
+    "Borracho",
+    "Cereza",
+    "Coco con dulce de leche",
+    "Crema de Cielo",
+    "Crema de higo",
+    "Crema Rusa",
+    "Chantilly con frutilla",
+    "Chicle"
+  ]],
+  ["Espceiales", [
+    "Flan",
+    "Frutilla a la crema",
+    "Frutilla Granizada",
+    "Granizado",
+    "Quinder",
+    "Lemon Pie",
+    "Mantecol",
+    "Maracuya",
+    "Marcarpone con Frutos del Bosque"
+  ]],
+  ["Otros", [
+    "Menta Granizada",
+    "Quinoto al Whisky",
+    "Rocklets",
+    "Sambayón",
+    "Tiramisú",
+    "Tramontana",
+    "Vainilla"
+  ]],
+  ["Dulce De Leche", [
+    "Dulce de Leche",
+    "Dulce de Leche Bombón",
+    "Dulce de Leche Brownie",
+    "Dulce de Leche Carioca",
+    "Dulce de Leche Granizado",
+    "Dulce de Leche con Nuez"
+  ]],
+  ["Frutales", [
+    "Ananá",
+    "Durzano",
+    "Frutilla al Agua",
+    "Limon",
+    "Limon Primavera",
+    "Mandarina",
+    "Manzana Verde",
+    "Naranja",
+    "Pomelo Rosado",
+    "Uva"
+  ]],
+  ["Chocolates", [
+    "Chocolate",
+    "Chocolate Blanco",
+    "Chocolate Bombón",
+    "Chocolate Borracho",
+    "Chocolate Carioca",
+    "Chocolate Con Nuez",
+    "Chocolate Explosivo",
+    "Chocolate Granizado"
+  ]]
+]
