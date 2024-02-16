@@ -16,7 +16,8 @@
   "dependencies": {
     "axios": "^1.6.5",
     "cors": "^2.8.5",
-    "firebase-admin": "^11.8.0",
+    "firebase": "^10.8.0",
+    "firebase-admin": "^11.11.1",
     "firebase-functions": "^4.3.1",
     "mercadopago": "^2.0.6"
   },

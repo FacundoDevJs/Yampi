@@ -14,15 +14,7 @@ const Success = () => {
             </div>
             <div className='w-[80%] m-auto text-2xl font-semibold pt-4 flex flex-col items-center'>
                 <div className='my-3 w-full'>
-                    {
-                    params.delivery === 'delivery' 
-                    ? '🍦 Tu pedido está en camino. Pronto recibirás tu helado favorito.'
-                    : params.delivery === 'purchase' 
-                    ?'✅ Compra Realizada'   
-                    :'🏢 Estamos preparando tu pedido. Ven a retirarlo al local.'   
-
-                        
-                    }
+                    🍦 Tu pedido está en camino. Pronto recibirás tu helado favorito.
                 </div>
                 <div className='my-8 w-full'>
                     { 

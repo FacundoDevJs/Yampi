@@ -1,6 +1,6 @@
 import {useContext, createContext, useEffect, useState} from 'react';
 import { db } from "../firebase";
-import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getCountFromServer, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 
 const context = createContext();
@@ -12,10 +12,17 @@ export const useUser = () => {
 
 const UserProvider = ({ children }) => {
   const [localUser, setLocalUser] = useState(null)
+  const [users, setUsers] = useState([])
   
   const { user } = useAuth()
 
-  const getUser = async (id) => getDoc(doc(db, "uesrs", id))
+  const usersCounter = async () => {
+    const coll = collection(db, "users");
+    const snapshot = await getCountFromServer(coll);
+    return snapshot.data().count
+  }
+
+  const getUser = async (id) => getDoc(doc(db, "users", id))
 
   const getUserByDni = async (dni) => {
     const q = query(collection(db, "users"), where("dni", "==", dni))
@@ -27,6 +34,22 @@ const UserProvider = ({ children }) => {
     } 
     else {
       return undefined
+    }
+  }
+
+  const getUsers = async () => {
+    try {
+      const documents = []
+      const q = query(collection(db, "users"))
+      const data = await getDocs(q)
+      await data.forEach((doc) => {
+          const documentData = doc.data()
+          documentData.id = doc.id
+          documents.push(documentData)
+      })
+      setUsers(documents)
+    } catch (error) {
+        console.log(error)
     }
   }
 
@@ -58,6 +81,28 @@ const UserProvider = ({ children }) => {
        Promise.reject(error)
     }
  }
+
+  const updateUser = async ({name, dni, phone_number}, id) => {
+    try {
+      await updateDoc(doc(db, "users", id), {name, dni, phone_number});
+      setUsers(users.map((user) => user.id === id ? {...user, name, dni, phone_number } : user));
+    } 
+    catch (error) {
+      console.log(error)
+    }
+  }
+
+  const deleteUser = async (id) => {
+    try {
+        await deleteDoc(doc(db, "users", id))
+        setUsers(users.filter((user) => user.id !== id))
+    }
+    catch (error){
+        console.log(error)
+        Promise.reject(error)
+    }
+
+  }
 
   const loginUser = async ({dni}) => {
     try {
@@ -108,9 +153,14 @@ const UserProvider = ({ children }) => {
   return (
     <context.Provider value={{
       localUser,
+      users,
+      usersCounter,
       getUser,
       getUserByDni,
+      getUsers,
       createUser,
+      deleteUser,
+      updateUser,
       loginUser
     }}>
         {children}

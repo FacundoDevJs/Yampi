@@ -8,6 +8,7 @@ import {
     getDoc,
     updateDoc,
     query,
+    setDoc,
   } from "firebase/firestore";
 import { uploadBytes, ref, getDownloadURL, deleteObject } from "firebase/storage";
 import { db, storage } from "../firebase";
@@ -59,23 +60,24 @@ const ProductProvider = ({children})=>{
     const getProduct = (id) => getDoc(doc(db, "products", id));
 
     const getProducts = async () => {
-    try {
-        const documents = []
-        const q = query(collection(db, "products"))
-        const data = await getDocs(q)
-        await data.forEach((doc) => {
-            const documentData = doc.data()
-            documentData.id = doc.id
-            documents.push(documentData)
-          })
-        setProducts(documents)
-    } catch (error) {
-        console.log(error)
-    }};
-
-    const addProduct = async ({name, price, points, exchangePoints, imageFile, tastes, tastesLimit}) => {
         try {
-            const docRef = await addDoc(collection(db, "products"), { name, price, points, exchangePoints, created_at: new Date(), tastes, imageURL: null, tastesLimit });            
+            const documents = []
+            const q = query(collection(db, "products"))
+            const data = await getDocs(q)
+            await data.forEach((doc) => {
+                const documentData = doc.data()
+                documentData.id = doc.id
+                documents.push(documentData)
+            })
+            setProducts(documents)
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
+    const addProduct = async ({name, price, points, exchangePoints, imageFile, tastes, tastesLimit, redeemable, stock}) => {
+        try {
+            const docRef = await addDoc(collection(db, "products"), { name, price, points, redeemable, stock, exchangePoints, created_at: new Date(), tastes, imageURL: null, tastesLimit });            
             if(imageFile){
                 const storageRef = ref(storage, docRef.id)
                 await uploadBytes(storageRef, imageFile)
@@ -106,16 +108,16 @@ const ProductProvider = ({children})=>{
         }
     }
     
-    const updateProduct = async ({name, price, points, exchangePoints, imageFile, tastes, tastesLimit}, id) => {
+    const updateProduct = async ({name, price, points, exchangePoints, imageFile, tastes, stock, tastesLimit, redeemable}, id) => {
         let imageURL;
         if(imageFile){
             const storageRef = ref(storage, id)
             await uploadBytes(storageRef, imageFile)
             imageURL = await getDownloadURL(storageRef)
-            await updateDoc(doc(db, "products", id), {name, price, points, exchangePoints, imageURL, tastes, tastesLimit});
+            await updateDoc(doc(db, "products", id), {name, price, points, redeemable, exchangePoints, imageURL, tastes, tastesLimit, stock});
         } 
         else {
-            await updateDoc(doc(db, "products", id), {name, price, points, exchangePoints, tastes, tastesLimit});
+            await updateDoc(doc(db, "products", id), {name, price, points, exchangePoints, tastes, tastesLimit, stock});
         }
         getDoc(doc(db, "products", id)).then((doc)=>{
             const documentData =  doc.data()

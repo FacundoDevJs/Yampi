@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children }) => {
       if (dayOfWeek >= 1 && dayOfWeek <= 4) {
         // De lunes a jueves: 12:00 a 23:00
         const businessStartTime = moment().set({ hour: 12, minute: 0, second: 0 });
-        const businessEndTime = moment().set({ hour: 23, minute: 0, second: 0 });
+        const businessEndTime = moment().set({ hour: 0, minute: 30, second: 0 }).add(1, 'day');
         isOpenNow = now.isBetween(businessStartTime, businessEndTime);
       } else if (dayOfWeek === 5 || dayOfWeek === 6) {
         // Viernes y sábado: 12:00 a 01:30
@@ -44,7 +44,7 @@ const ProtectedRoute = ({ children }) => {
           <div className='bg-white rounded-xl p-4 m-auto text-xl'>
             <h1 className='py-2 font-bold'>❌ El negocio está cerrado ❌</h1>
             <p className='font-semibold'>Horario de atención:</p>
-            <div><p className='font-semibold inline'>📅 Lunes a jueves:</p> de <p className='font-semibold inline'>12:00 a 23:00 </p></div>
+            <div><p className='font-semibold inline'>📅 Lunes a jueves:</p> de <p className='font-semibold inline'>12:00 a 00:30 </p></div>
             <div><p className='font-semibold inline'>📅 Viernes y sábado:</p> de <p className='font-semibold inline'>12:00 a 01:30 </p></div>
             <div><p className='font-semibold inline'>📅 Domingo:</p> de <p className='font-semibold inline'>11:00 a 00:00 </p></div>
           </div>

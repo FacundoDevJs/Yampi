@@ -16,7 +16,7 @@ const Orders = () => {
   }, [])
 
   return (
-  <div className="w-full min-h-[100vh] bg-red-500 pt-12">
+  <div className="w-full min-h-[100vh] bg-red-500 pt-12 pb-24">
     <NavBar admin={true}/>
     <SideBar/>
     <h1 className="pl-6 pt-16 text-3xl mb-10 font-bold text-white max-w-[650px] w-full m-auto">

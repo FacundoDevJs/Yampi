@@ -39,8 +39,9 @@ const HomePage = () => {
               >
                 {index === 0 && (
                   <>
-                    Bienvenido al paraíso helado: la aplicación de
-                    <b className="text-red-500"> Yampi San Cristobal 🌟</b>
+                    Bienvenido a
+                    <b className="text-red-500"> Yampi San Cristobal </b>
+                    naturalmente tu sabor 🌟
                   </>
                 )}
                 {index === 1 && (
@@ -51,13 +52,13 @@ const HomePage = () => {
                 )}
                 {index === 2 && (
                   <>
-                    Cada compra cuenta para obtener productos gratuitos.
-                    <b className="text-red-500"> ¡Acumula puntos a toda marcha! 🏆</b>
+                    Comprá, acumulá puntos y
+                    <b className="text-red-500"> canjealos por productos Yampi </b>
                   </>
                 )}
                 {index === 3 && (
                   <>
-                    Canjea tus puntos por productos <b className="text-red-500"> Gratis</b> que te esperan tanto en el local como en nuestra aplicación.
+                    Canjea tus puntos por productos <b className="text-red-500"> Gratis</b> que te esperan en nuetro local
                     🌟
                   </>
                 )}

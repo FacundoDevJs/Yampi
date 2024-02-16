@@ -26,6 +26,8 @@ const AddProduct = () => {
       imageFile: null, 
     }
    )
+   const [redeemable, setRedeemable] = useState(false)
+   const [stock, setStock] = useState(true)
 
   const { addProduct, listOfTastes, products, getProduct, updateProduct } = useProduct()
 
@@ -67,7 +69,6 @@ function resizeImage(file, maxWidth, maxHeight, callback) {
   };
   reader.readAsDataURL(file);
   }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (value.name === null) {
@@ -89,7 +90,9 @@ function resizeImage(file, maxWidth, maxHeight, callback) {
               exchangePoints: value.exchangePoints,
               imageFile: resizedBlob,
               tastes: selectedTastes,
-              tastesLimit: counter
+              tastesLimit: counter,
+              redeemable,
+              stock,
             }, params.id).then(()=> navigate('/tus-productos'));
           })
         } else {
@@ -100,7 +103,9 @@ function resizeImage(file, maxWidth, maxHeight, callback) {
             exchangePoints: value.exchangePoints,
             imageURL: value.imageURL,
             tastes: selectedTastes,
-            tastesLimit: counter
+            tastesLimit: counter,
+            redeemable,
+            stock,
           }, params.id).then(()=> navigate('/tus-productos'));
         }
       } else {
@@ -113,7 +118,9 @@ function resizeImage(file, maxWidth, maxHeight, callback) {
               exchangePoints: value.exchangePoints,
               imageFile: resizedBlob,
               tastes: selectedTastes,
-              tastesLimit: counter
+              tastesLimit: counter,
+              redeemable,
+              stock,
             }).then(()=> navigate('/tus-productos'));
           })
         } else {
@@ -124,7 +131,9 @@ function resizeImage(file, maxWidth, maxHeight, callback) {
             exchangePoints: value.exchangePoints,
             imageURL: value.imageURL,
             tastes: selectedTastes,
-            tastesLimit: counter
+            tastesLimit: counter,
+            redeemable,
+            stock,
           }).then(()=> navigate('/tus-productos'));
         }
       }
@@ -147,6 +156,8 @@ function resizeImage(file, maxWidth, maxHeight, callback) {
         productCalled = data.data()
         productCalled.id = data.id
         setCounter(productCalled.tastesLimit)
+        setRedeemable(productCalled.redeemable)
+        setStock(productCalled.stock)
         setInitialValues(productCalled)
         setValue({
           name: productCalled.name,
@@ -154,7 +165,7 @@ function resizeImage(file, maxWidth, maxHeight, callback) {
           points: productCalled.points, 
           exchangePoints: productCalled.exchangePoints,
           imageFile: null, 
-          imageURL: productCalled.imageURL
+          imageURL: productCalled.imageURL,
         })
         setSelectedTastes(productCalled.tastes)
       }
@@ -163,6 +174,8 @@ function resizeImage(file, maxWidth, maxHeight, callback) {
       if(productFiltered){
         setInitialValues(productFiltered)
         setCounter(productFiltered.tastesLimit)
+        setRedeemable(productFiltered.redeemable)
+        setStock(productFiltered.stock)
         setSelectedTastes(productFiltered.tastes)
         setValue({
           name: productFiltered.name,
@@ -269,7 +282,7 @@ function resizeImage(file, maxWidth, maxHeight, callback) {
           </div>
           <div className='flex flex-col px-4 items-center text-center'>
             <div className='mt-4 text-xl font-bold'>
-              Cantidad de gustos que pueden elegir como maximo 🍨
+              Cantidad de gustos que tienen que elegir 🍨
             </div>
             
             <div className='flex items-center justify-between px-2 text-white font-bold text-2xl rounded-full bg-red-500 mt-3'>
@@ -292,6 +305,56 @@ function resizeImage(file, maxWidth, maxHeight, callback) {
                 >
                     +
                 </div>
+            </div>
+          </div>
+          <div className="p-4 text-center font-bold">
+            <div className='my-4 text-xl'>
+              ¿Canjeable por puntos?
+            </div>
+            <div className='flex shadow-lg shadow-black/40 rounded-xl cursor-pointer w-[140px] m-auto'>
+              <div className={
+                redeemable
+                ? 'w-[50%] p-4 rounded-l-xl bg-red-500 text-white'
+                : 'w-[50%] p-4 border-2 border-red-500 rounded-l-xl'
+              }
+              onClick={()=>{setRedeemable(true)}}
+              >
+                Si
+              </div>
+              <div className={
+                !redeemable
+                ? 'w-[50%] p-4 rounded-r-xl bg-red-500 text-white'
+                : 'w-[50%] p-4 border-t-2 border-r-2 border-b-2 border-red-500 rounded-r-xl'
+              }
+              onClick={()=>{setRedeemable(false)}}
+              >
+                No
+              </div>
+            </div>
+          </div>
+          <div className="p-4 text-center font-bold">
+            <div className='my-4 text-xl'>
+              ¿Hay Stock de este producto?
+            </div>
+            <div className='flex shadow-lg shadow-black/40 rounded-xl cursor-pointer w-[140px] m-auto'>
+              <div className={
+                stock
+                ? 'w-[50%] p-4 rounded-l-xl bg-red-500 text-white'
+                : 'w-[50%] p-4 border-2 border-red-500 rounded-l-xl'
+              }
+              onClick={()=>{setStock(true)}}
+              >
+                Si
+              </div>
+              <div className={
+                !stock
+                ? 'w-[50%] p-4 rounded-r-xl bg-red-500 text-white'
+                : 'w-[50%] p-4 border-t-2 border-r-2 border-b-2 border-red-500 rounded-r-xl'
+              }
+              onClick={()=>{setStock(false)}}
+              >
+                No
+              </div>
             </div>
           </div>
           <div className="p-4 text-xl font-semibold">

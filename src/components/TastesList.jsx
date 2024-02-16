@@ -70,6 +70,12 @@ const TastesList = ({ category, selectedTastes, setSelectedTastes, admin, tastes
     setList(listOfTastes[category])
   }, [listOfTastes])
 
+  if (!admin){
+    if (list.every(elem => !tastes.includes(elem))){
+      return <div></div>
+    }
+  }
+  
   return (
     <div className={list.every(elem => selectedTastes.includes(elem)) ? "p-2 bg-red-300 my-3 rounded-xl transition-all" : "p-2 bg-neutral-200 my-3 rounded-xl transition-all"}>
       <div className="flex justify-between items-center px-2">
@@ -83,9 +89,8 @@ const TastesList = ({ category, selectedTastes, setSelectedTastes, admin, tastes
             <IoIosCheckmark
             className="cursor-pointer"
             onClick={() => {
-              let newList = list.filter((taste) => !selectedTastes.includes(taste));
-              setSelectedTastes(newList);
-              setLocallySelecteds([])
+              setSelectedTastes(selectedTastes.filter(taste =>  !list.includes(taste)));
+              setLocallySelecteds(selectedTastes.filter(taste =>  !list.includes(taste)))
             }}
             /> 
             :
@@ -198,13 +203,10 @@ const TastesList = ({ category, selectedTastes, setSelectedTastes, admin, tastes
             <IoIosCheckmark
             className="w-6 h-6 cursor-pointer"
             onClick={() => {
-              let newSelectedTastes;
-              newSelectedTastes = selectedTastes.filter(
-                (selectedTaste) => selectedTaste !== taste );
-              let newLocallySelectedTastes = locallySelecteds.filter(
-                (selectedTaste) => selectedTaste !== taste );
-              setSelectedTastes(newSelectedTastes);
-              setLocallySelecteds(newLocallySelectedTastes);
+              setSelectedTastes(selectedTastes.filter(
+                (selectedTaste) => selectedTaste !== taste ))
+              setLocallySelecteds(selectedTastes.filter(
+                (selectedTaste) => selectedTaste !== taste ));
             }}
             />
             :
@@ -214,9 +216,7 @@ const TastesList = ({ category, selectedTastes, setSelectedTastes, admin, tastes
               if ( selectedTastes.length > (tastesLimit * counter) -1 ) {
                 handleError(`No puedes elegir mas de  ${tastesLimit * counter} gustos de helado`)
             } else {
-                let newSelectedTastes;
-                newSelectedTastes = [...selectedTastes, taste];
-                setSelectedTastes(newSelectedTastes);
+                setSelectedTastes([...selectedTastes, taste]);
                 setLocallySelecteds([...locallySelecteds, taste]);
             }
             }}

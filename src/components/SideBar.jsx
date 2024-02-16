@@ -38,7 +38,19 @@ const SideBar = () => {
             to='/tus-productos'
             className='block p-2 w-52 m-4 border-2 border-black hover:bg-black hover:text-white rounded font-bold text-center'
             >
+              Tus Productos 🍨 
+            </Link>
+            <Link
+            to='/productos/admin'
+            className='block p-2 w-52 m-4 border-2 border-black hover:bg-black hover:text-white rounded font-bold text-center'
+            >
               Productos 🍦 
+            </Link>
+            <Link
+            to='/users'
+            className='block p-2 w-52 m-4 border-2 border-black hover:bg-black hover:text-white rounded font-bold text-center'
+            >
+              Usuarios 👨 
             </Link>
             <Link
             to='/orders' 
@@ -52,7 +64,7 @@ const SideBar = () => {
             >
               Compras en el local 🏢
             </Link>
-            <div
+            {/* <div
             onClick={ () => {
               navigate('/')
               logout()
@@ -60,7 +72,7 @@ const SideBar = () => {
             className='block p-2 w-64 m-4 border-2 border-black hover:bg-black hover:text-white rounded font-bold text-center'
             >
               Cerrar Sesión 
-            </div>
+            </div> */}
           </div>
           :
           <div className={
@@ -76,12 +88,6 @@ const SideBar = () => {
             className='block p-2 w-52 m-4 border-2 border-black hover:bg-black hover:text-white rounded font-bold text-center'
             >
               Perfil 👨‍💼
-            </Link>
-            <Link
-            to='/productos'
-            className='block p-2 w-52 m-4 border-2 border-black hover:bg-black hover:text-white rounded font-bold text-center'
-            >
-              Productos 🍦 
             </Link>
             <div
             onClick={ () => {

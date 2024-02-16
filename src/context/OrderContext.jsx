@@ -14,6 +14,9 @@ import {
   } from "firebase/firestore";
 import { db, functions } from "../firebase";
 import { httpsCallable } from "firebase/functions";
+import handleNewOrder from '../utils/handleNeworder';
+import { useAuth } from "../context/AuthContext"
+import sound from "../assets/sound.wav"
 
 const context = createContext()
 
@@ -22,6 +25,7 @@ export const useOrder = ()=>{
     return newContext
 }
 
+
 const OrderProvider = ({children})=>{
    
     const [orders, setOrders] = useState([])
@@ -29,7 +33,11 @@ const OrderProvider = ({children})=>{
     const [orderedProducts, setOrderedProducts] = useState([])
     const [price, setPrice] = useState(0)
     const [points, setPoints] = useState(0)
-    const [clientInfo, setClientInfo] = useState(null)
+    const [clientInfo, setClientInfo] = useState(null);
+    const [wasCalled, setWasCalled] = useState(false)
+
+    const { user } = useAuth()
+
 
     const storedUserJSON = localStorage.getItem('userData');
     const localUser = JSON.parse(storedUserJSON);
@@ -101,36 +109,9 @@ const OrderProvider = ({children})=>{
         }
     }
 
-    const addOrder = async ({name, dni, address, phone_number}, delivery, paymentMethod)=>{  
+    const addOrder = async ({name, dni, address, phone_number}, paymentMethod)=>{  
        try {
-        const newOrder = await addDoc(collection(db, "orders"), { 
-            orderedProducts, 
-            price, 
-            points,
-            name, 
-            dni, 
-            address, 
-            phone_number, 
-            created_at: new Date(), 
-            completed: false, 
-            delivery, 
-            paymentMethod, 
-            paid: false,
-            seen: false,
-            purchase: false
-        });
-
-        if (localUser){
-            let newlocalUser = localUser;
-
-            await updateDoc(doc(db, "users", localUser.id), {
-                points: localUser.points + points,
-                orders: [...localUser.orders, newOrder.id]
-            });   
-            newlocalUser.points = localUser.points + points;
-            newlocalUser.orders = [...localUser.orders, newOrder.id];
-            localStorage.setItem('userData', JSON.stringify(newlocalUser));
-        }
+        setWasCalled(false)
 
         if (paymentMethod === 'mercadopago') {
 
@@ -149,16 +130,61 @@ const OrderProvider = ({children})=>{
                     })
                 }
             }
+
+            items.push({
+                id: crypto.randomUUID(),
+                title: 'Envío',
+                currency_id: "ARS",
+                quantity: 1,
+                unit_price: 400,
+            })
+            // items.push({
+            //     id: crypto.randomUUID(),
+            //     title: 'Envío',
+            //     currency_id: "ARS",
+            //     quantity: 1,
+            //     unit_price: 1,
+            // })
+
             resetValues()
             if (items.length > 0) {
                 const createPreference = httpsCallable(functions, 'helloWorld');
-                const preference = await createPreference({items, orderId: newOrder.id})
-
+                const preference = await createPreference({items})
+                await addDoc(collection(db, "orders"), { 
+                    orderedProducts, 
+                    price, 
+                    points,
+                    name, 
+                    dni, 
+                    address, 
+                    phone_number, 
+                    created_at: new Date(), 
+                    completed: false, 
+                    paymentMethod, 
+                    paid: false,
+                    seen: false,
+                    purchase: false,
+                    preference_id: preference.data.id
+                });
                 return preference.data
             } else {
                 return false
             }
         } else {
+            await addDoc(collection(db, "orders"), { 
+                orderedProducts, 
+                price, 
+                points,
+                name, 
+                dni, 
+                address, 
+                phone_number, 
+                created_at: new Date(), 
+                completed: false, 
+                paymentMethod, 
+                seen: false,
+                purchase: false
+            });
             resetValues()
             return true
         }
@@ -173,14 +199,10 @@ const OrderProvider = ({children})=>{
     }
 
     const addPurchase = async () => {
-        const {
-                name, 
-                dni, 
-                phone_number,
-                id
-                } = clientInfo;
+        const { name, dni, phone_number, id } = clientInfo;
         
         try {
+            setWasCalled(false)
             const newOrder = await addDoc(collection(db, "orders"), { 
                 orderedProducts, 
                 price, 
@@ -193,7 +215,6 @@ const OrderProvider = ({children})=>{
                 seen: false,
                 purchase: true,
             });
-
             await updateDoc(doc(db, "users", id), {
                 points: clientInfo.points + points,
                 orders: [...clientInfo.orders, newOrder.id]
@@ -209,6 +230,7 @@ const OrderProvider = ({children})=>{
 
     const payOrder = async (id) => {
         try {
+            setWasCalled(false)
             await updateDoc(doc(db, "orders", id), {paid: true});      
         } catch (error) {
             console.log(error)
@@ -216,8 +238,8 @@ const OrderProvider = ({children})=>{
     }
 
     const setAsSeenOrder = async (id) => {
-        
         try {
+            setWasCalled(false)
             await updateDoc(doc(db, "orders", id), {seen: true});      
         } catch (error) {
             console.log(error)
@@ -226,6 +248,7 @@ const OrderProvider = ({children})=>{
 
     const updateOrder = async (id, data)=>{
         try {
+        setWasCalled(false)
         await updateDoc(doc(db, "orders", id), data);           
         await getDoc(doc(db, "orders", id)).then((doc)=>{
             const documentData =  doc.data()
@@ -239,7 +262,9 @@ const OrderProvider = ({children})=>{
 
     const deleteOrder = async (id)=>{
         try{
+            setWasCalled(false)
             await deleteDoc(doc(db, "orders", id))
+            setPurchases(purchases.filter((purchase) => purchase.id !== id))
         }
         catch(error){
             console.log(error)
@@ -253,9 +278,23 @@ const OrderProvider = ({children})=>{
           getOrders()
         });
     
-        // Retorno de la función de limpieza para detener la suscripción
         return () => unsubscribe();
       }, []);
+
+    useEffect(()=>{
+        if (user) {
+            setTimeout(()=>{
+                setWasCalled(true)
+            }, 5000)
+        }
+        if (user && wasCalled) {
+            handleNewOrder()
+            const play = () => {
+              new Audio(sound).play()
+            }
+            play()
+        }
+    }, [orders])
 
 
     return (

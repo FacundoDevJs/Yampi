@@ -1,14 +1,17 @@
 import { TbShoppingBag } from "react-icons/tb"
 import { useNavigate } from "react-router-dom"
 import OrderNumber from "./OrderNumber"
+import { useOrder } from "../context/OrderContext"
 
 const OrderIcon = ({white, admin}) => {
   const navigate = useNavigate()
  
+  const {clientInfo} = useOrder()
+
   return (
     <div
     onClick={()=>{
-      if(admin === true){
+      if(admin === true || clientInfo){
         navigate(`/productos/orden/${true}`)
       } else {
         navigate(`/productos/orden/${false}`)

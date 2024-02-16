@@ -24,6 +24,10 @@ import NewPurchase from "./pages/NewPurchase"
 import AddPurchase from "./pages/AddPurchase"
 import Purchases from "./pages/Purchases"
 import PurchasePage from "./pages/PurchasePage"
+import PointsTable from "./pages/PointsTable"
+import Products from "./pages/Products"
+import Users from "./pages/Users"
+import User from "./pages/User"
 
 function App() {
 
@@ -91,8 +95,14 @@ function App() {
                 path="/productos"
                 element={
                   <ProtectedRoute>
-                    <Home admin={false}/>
+                    <Products/>
                   </ProtectedRoute>
+                }
+                />
+                <Route
+                path="/productos/admin"
+                element={
+                  <Products admin={true}/>
                 }
                 />
                 <Route
@@ -165,6 +175,24 @@ function App() {
                 path='/purchases'
                 element={
                   <Purchases/>
+                }
+                />
+                <Route
+                path='/points-table'
+                element={
+                  <PointsTable/>
+                }
+                />
+                <Route
+                path='/users'
+                element={
+                  <Users/>
+                }
+                />
+                <Route
+                path='/user/:id'
+                element={
+                  <User/>
                 }
                 />
               </Routes>

@@ -8,7 +8,7 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import { useOrder } from "../context/OrderContext";
 import { useUser } from "../context/UserContext";
 
-const ProductCard = ({product, admin}) => {
+const ProductCard = ({product, admin, purchase}) => {
 
   const { deleteProduct } = useProduct()
   const { clientInfo } = useOrder()
@@ -42,12 +42,16 @@ const ProductCard = ({product, admin}) => {
             background: "#202020"
         }
     })
+  } // NXCKNi2nKGURUwhRKtTy
+
+  if (product.id === 'NXCKNi2nKGURUwhRKtTy' && !admin && !purchase) {
+    return <></>
   }
 
   return (
     <div 
     onClick={()=>{
-      if(!admin) {
+      if(!admin && product?.stock) {
         navigate(`/productos/${product.id}`)
       }
     }}
@@ -59,18 +63,18 @@ const ProductCard = ({product, admin}) => {
     >
       <div className="pb-3 font-bold text-xl text-red-500">
         {
-        admin === false
-        ?
-          clientInfo !== null
+          (clientInfo !== null && product.redeemable)
           ?
             clientInfo?.points >= product.exchangePoints
             ? '¡Canjeable por puntos!'
             : ''
-          :
-            localUser?.points >= product.exchangePoints
-            ? '¡Canjeable por puntos!'
-            : ''
-        :""  
+          :''
+        }
+      </div>
+      <div className="pb-3 font-bold text-xl">
+        {
+          !product.stock &&
+          'No hay Stock'
         }
       </div>
       {
@@ -103,14 +107,18 @@ const ProductCard = ({product, admin}) => {
             <FaRegTrashAlt  className='h-8 w-8 text-white m-auto'/>
           </div>  
         </div>
-        : <div 
-          onClick={(e)=> {
-            e.preventDefault()
+        : 
+        product.stock &&
+        <div 
+        onClick={(e)=> {
+          e.preventDefault()
+          if (product.stock) {
             navigate(`/productos/${product.id}`)
-          }} 
-          className="mt-3 p-2 bg-red-500 rounded-xl flex shadow-md shadow-black/40 cursor-pointer">
+          }
+        }} 
+        className="mt-3 p-2 bg-red-500 rounded-xl flex shadow-md shadow-black/40 cursor-pointer">
            <TbShoppingBagPlus className='h-8 w-8 text-white m-auto'/>
-          </div>
+        </div>
        }
     </div>
   )

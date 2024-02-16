@@ -21,6 +21,10 @@ const ShopOrderCard = ({ order }) => {
             ? ''
             : '❗ Nueva Orden'
           }
+          {
+            order?.completed && 
+            '✅ Completado'
+          }
       </div>
       <div className='px-5 py-2 flex justify-between items-center'>
         <div className='flex flex-col text-lg'>

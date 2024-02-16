@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 
 import { useOrder } from "../context/OrderContext"
 import ArrowBack from "../components/ArrowBack"
@@ -7,17 +7,49 @@ import ArrowBack from "../components/ArrowBack"
 import { FiShoppingBag } from 'react-icons/fi'
 
 import { useEffect, useState } from "react"
+import toast from "react-hot-toast"
+import { FaCheck, FaRegTrashAlt } from "react-icons/fa"
 
 const PurchasePage = () => {
 
 
   const [order, setOrder] = useState();
   const [date, setDate] = useState();
+  const [orderState, setOrderState] = useState()
 
-  const { purchases, getOrder} = useOrder()
+  const { updateOrder, deleteOrder, purchases, getOrder} = useOrder()
 
   const params = useParams()
-
+  const navigate = useNavigate()
+  
+  const handleDelete= ()=>{
+    toast(t=>(
+        <div>
+            <p className='text-white text-xl font-semibold'>¿Seguro que quieres eliminar esta orden?</p>
+            <div>
+                <button 
+                className='bg-red-500 hover:bg-red-400 px-3 py-2 rounded-sm text-sm mx-2 text-white'
+                onClick={()=> {
+                    deleteOrder(order?.id)
+                    toast.dismiss(t.id)
+                    navigate('/purchases')
+                }}
+                >
+                    Eliminar
+                </button>
+                <button className='bg-slate-400 hover:bg-slate-500 px-3 py-2 rounded-sm mx-2 text-white'
+                onClick={()=> toast.dismiss(t.id)}
+                >
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    ), {
+        style:{
+            background: "#202020"
+        }
+    })
+  }
   useEffect(()=>{
 
     const callData = async () => {
@@ -28,7 +60,6 @@ const PurchasePage = () => {
       setOrder(orderCalled)
       const date = new Date(orderCalled?.created_at.seconds * 1000)
       setDate(date)
-      console.log("LLAMADA")
     }
 
     const order = purchases.filter((order) => order?.id === params.id)[0]
@@ -105,6 +136,14 @@ const PurchasePage = () => {
           </div>
       ))
       }
+      
+      <div className='w-full max-w-[700px] m-auto flex items-center justify-around font-semibold text-2xl py-6'>
+          <button 
+          onClick={handleDelete}
+          className='shadow-md shadow-black/60 p-2 bg-white rounded-xl flex hover:shadow-black/80'>
+          <FaRegTrashAlt/>
+          </button>
+        </div>
     </div>
   )
 }

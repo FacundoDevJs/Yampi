@@ -14,6 +14,7 @@ import { useOrder } from "../context/OrderContext"
 import toast from "react-hot-toast"
 import { VscError } from "react-icons/vsc"
 import { useUser } from "../context/UserContext"
+import { IoIosCheckmark, IoMdAdd } from "react-icons/io"
 
 
 const Product = () => {
@@ -22,7 +23,6 @@ const Product = () => {
   const [counter, setCounter] = useState(1)
 
   const {addToOrder, addPrice, addPoints, clientInfo} = useOrder()
-  const { localUser } = useUser()
   const { getProduct , listOfTastes, products } = useProduct()
 
   const listOfCategorys = Object.keys(listOfTastes)
@@ -49,24 +49,31 @@ const Product = () => {
 
   const handleSubmit = async (redeemed)=>{
     if (redeemed){
-      if (selectedTastes.length < product.tastesLimit) {
-        handleError(`Debes elegir por lo menos ${product.tastesLimit} gustos de helado`)
+      if (selectedTastes.length === 0 && product.tastesLimit > 0 && !clientInfo) {
+        handleError(`Debes elegir por lo menos 1 gusto de helado`)
       } else {
         await addToOrder({ product: {name: product.name, price: 0, imageURL: product.imageURL}, productId: product.id, quantity: counter, tastes: selectedTastes, redeemed })
-        addPoints(-product.points * counter)
-        navigate(-1)
+        addPoints(-product.exchangePoints * counter)
         setSelectedTastes([])
       } 
     } else {
-      if (selectedTastes.length < product.tastesLimit) {
-        handleError(`Debes elegir por lo menos ${product.tastesLimit} gustos de helado`)
+      if (selectedTastes.length === 0 && product.tastesLimit > 0 && !clientInfo) {
+        handleError(`Debes elegir por lo menos 1 gusto de helado`)
       } else {
         await addToOrder({ product: {name: product.name, price: product.price, imageURL: product.imageURL}, productId: product.id, quantity: counter, tastes: selectedTastes, redeemed })
         await addPrice(product.price * counter)
-        addPoints(product.points * counter)
-        navigate(-1)
+        if (clientInfo !== null) {
+          addPoints(product.points * counter)
+        } else {
+          addPoints(0)
+        }
         setSelectedTastes([])
       } 
+    }
+    if (clientInfo){
+      navigate('/new-purchase')
+    } else {
+      navigate('/productos')
     }
   }
 
@@ -135,32 +142,86 @@ const Product = () => {
               <div className="text-2xl font-semibold pt-8 pl-8">
                     Puntos: {product?.points}
               </div>
-              <div className="text-2xl font-semibold pt-8 pl-8">
-                    Puntos para canjearlo: {product?.exchangePoints}
-              </div>
+              {
+                (product.redeemable && clientInfo) &&
+                <div className="text-2xl font-semibold pt-8 pl-8">
+                      Puntos para canjearlo: {product?.exchangePoints}
+                </div>
+              }
               <div className="p-4 text-xl font-semibold">
               {
+                !clientInfo &&
+                product.tastes.length > 15
+                ?
+                  listOfCategorys.length > 0 ?
+                  listOfCategorys.map(category => (
+                    <TastesList 
+                    key={category} 
+                    category={category} 
+                    list={listOfTastes[category]} 
+                    tastes={product.tastes}
+                    selectedTastes={selectedTastes}
+                    setSelectedTastes={setSelectedTastes}
+                    tastesLimit={product.tastesLimit}
+                    counter={counter}
+                    />
+                  ))
+                  : <AiOutlineLoading3Quarters className='animate-spin h-12 w-5 m-auto'/>
+                : 
+                !clientInfo &&
                 product.tastes.length > 0
                 ?
-                listOfCategorys.length > 0 ?
-                listOfCategorys.map(category => (
-                  <TastesList 
-                  key={category} 
-                  category={category} 
-                  list={listOfTastes[category]} 
-                  tastes={product.tastes}
-                  selectedTastes={selectedTastes}
-                  setSelectedTastes={setSelectedTastes}
-                  tastesLimit={product.tastesLimit}
-                  counter={counter}
-                  />
-                ))
-                : <AiOutlineLoading3Quarters className='animate-spin h-12 w-5 m-auto'/>
+                <div>
+                {
+                 product.tastes.map((taste) => (
+                    <li
+                      key={taste}
+                      className={
+                         selectedTastes.includes(taste) 
+                          ? "flex items-center p-2 bg-red-500 text-white my-3 rounded-lg" 
+                          : "flex items-center p-2 bg-neutral-300 my-3 rounded-lg" 
+                        }
+                    >
+                    {
+                      selectedTastes.includes(taste)
+                      ?
+                      <IoIosCheckmark
+                      className="w-6 h-6 cursor-pointer"
+                      onClick={() => {
+                        setSelectedTastes(selectedTastes.filter(
+                          (selectedTaste) => selectedTaste !== taste ))
+                      }}
+                      />
+                      :
+                      <IoMdAdd
+                      className="w-6 h-6 cursor-pointer"
+                      onClick={() => { 
+                        if ( selectedTastes.length === 1 ) {
+                          handleError(`No puedes elegir mas de 1 gusto de helado en este producto`)
+                      } else {
+                          setSelectedTastes([...selectedTastes, taste]);
+                      }
+                      }}
+                    />
+                    }
+                     
+                      <div
+                        className={
+                          selectedTastes.includes(taste) ? "px-2 text-white w-[80%]" : "px-2 w-[80%]"
+                        }
+                      >
+                        {taste}
+                      </div>
+
+                    </li>
+                 )) 
+                }
+                </div>
                 : ''
               }
               </div>
               {
-              clientInfo !== null
+              (clientInfo !== null && product.redeemable)
               ?
               clientInfo?.points >= (product.exchangePoints * counter)
               ?
@@ -183,26 +244,11 @@ const Product = () => {
                 <TbShoppingBagPlus className='h-12 w-12 text-white m-auto'/>
               </div>
               :
-               localUser?.points >= (product.exchangePoints * counter)
-                ?
-                <div>
-                  <div 
-                  onClick={()=> handleSubmit(true)} 
-                  className="mt-3 p-2 bg-red-500 rounded-xl shadow-xl shadow-black/20 cursor-pointer text-center text-white text-2xl font-bold">
-                    Canjear Por puntos
-                  </div>
-                  <div 
-                  onClick={()=> handleSubmit(false)} 
-                  className="mt-3 p-2 bg-red-500 rounded-xl flex shadow-xl shadow-black/20 cursor-pointer">
-                    <TbShoppingBagPlus className='h-12 w-12 text-white m-auto'/>
-                  </div>
-                </div>
-                :
-                <div 
-                onClick={()=> handleSubmit(false)} 
-                className="mt-3 p-2 bg-red-500 rounded-xl flex shadow-xl shadow-black/20 cursor-pointer">
-                  <TbShoppingBagPlus className='h-12 w-12 text-white m-auto'/>
-                </div>
+              <div 
+              onClick={()=> handleSubmit(false)} 
+              className="mt-3 p-2 bg-red-500 rounded-xl flex shadow-xl shadow-black/20 cursor-pointer">
+                <TbShoppingBagPlus className='h-12 w-12 text-white m-auto'/>
+              </div>
               }
               
             </div>

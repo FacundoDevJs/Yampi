@@ -3,12 +3,16 @@ import { useNavigate } from 'react-router-dom';
 
 import { useOrder } from '../context/OrderContext'
 
-import { AiOutlineLoading3Quarters } from 'react-icons/ai'
 import ArrowBack from '../components/ArrowBack';
 
 import handleError from "../utils/handleError"
           
+import { AiOutlineLoading3Quarters } from 'react-icons/ai'
+import { MdDeliveryDining } from "react-icons/md";
+import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
+
 import image from "./mercadopago.png"
+import { useUser } from '../context/UserContext';
 
 const AddOrder = () => {
   const [value, setValue] = useState({
@@ -18,21 +22,17 @@ const AddOrder = () => {
     phone_number: null, 
   })
   const [isLoading, setIsLoading] = useState(false)
-  const [delivery, setDelivery] = useState('none')
   const [paymentMethod, setPaymentMethod] = useState('none')
+  const [isOpenProducts, setIsOpenProducts] = useState(false)
 
   const navigate = useNavigate()
 
-  const { addOrder, price } = useOrder()
-  const storedUserJSON = localStorage.getItem('userData');
-  const localUser = JSON.parse(storedUserJSON);
-
+  const { addOrder, price, orderedProducts } = useOrder()
+  const {localUser} = useUser()
 
   const handleSubmit = async ()=>{
       try {
-        if (delivery === 'none') {
-          handleError('Elige como quieres recibir el producto')
-        } else if (paymentMethod === 'none'){
+        if (paymentMethod === 'none'){
           handleError('Elige un metodo de pago')
         } else if (localUser) {
           setIsLoading(true)
@@ -42,7 +42,6 @@ const AddOrder = () => {
             address: value.address, 
             phone_number: localUser.phone_number, 
           },
-          delivery, 
           paymentMethod
           )
           if (paymentMethod === 'mercadopago'){
@@ -53,13 +52,13 @@ const AddOrder = () => {
             }
           } 
           else {
-            navigate(`/cashSuccess/${delivery}`)
+            navigate('/cashSuccess/delivery')
           }
         } else if (value.name === null || value.dni === null || value.address === null || value.phone_number === null) {
           handleError('Completa todos los campos')
         } else {
           setIsLoading(true)
-          const result = await addOrder(value, delivery, paymentMethod)
+          const result = await addOrder(value, paymentMethod)
           if (paymentMethod === 'mercadopago'){
             if (result === false){
               navigate('/success/redeeemed')
@@ -68,7 +67,7 @@ const AddOrder = () => {
             } 
           } 
           else {
-            navigate(`/cashSuccess/${delivery}`)
+            navigate('/cashSuccess/delivery')
           }
           }
       } catch (error) {
@@ -91,28 +90,41 @@ const AddOrder = () => {
       <form
       className='bg-white max-w-[600px] m-auto rounded-xl py-6 px-8 shadow-xl shadow-black/40'
       >
-        <div className='text-2xl font-bold text-center py-3 border-black'>
-          ¿Como quieres recibir el pedido?
+        <div className='text-2xl font-bold py-3 border-black'>
+          Precio: ${price + 400}
         </div>
-        <div className='flex shadow-lg shadow-black/40 rounded-xl cursor-pointer'>
-          <div className={
-            delivery === 'pick-up'
-            ? 'w-[50%] p-4 rounded-l-xl bg-red-500 text-white'
-            : 'w-[50%] p-4 border-2 border-red-500 rounded-l-xl'
+        <div 
+        onClick={()=>setIsOpenProducts(!isOpenProducts)}      
+        className="my-4 text-neutral-500 flex cursor-pointer">
+          Ver Productos {
+            isOpenProducts
+            ? <IoIosArrowUp className="mx-2 h-6 w-6"/>
+            : <IoIosArrowDown className="mx-2 h-6 w-6"/>
           }
-          onClick={()=>{setDelivery('pick-up')}}
-          >
-            🏢 Retirar en el local
-          </div>
-          <div className={
-            delivery === 'delivery'
-            ? 'w-[50%] p-4 rounded-r-xl bg-red-500 text-white'
-            : 'w-[50%] p-4 border-t-2 border-r-2 border-b-2 border-red-500 rounded-r-xl'
+        </div>
+        <div
+        className={
+          isOpenProducts
+          ? 'max-h-auto transition-all py-2'
+          : 'h-0 transition-all'
+        }
+        >
+          {
+            isOpenProducts &&
+            orderedProducts.map((product)=>(
+              <div className='flex items-center text-md font-semibold py-2'>
+                <img src={product.product.imageURL} className='h-6 w-6 mr-2'/>
+                {product.product.name}
+              </div>
+            ))
           }
-          onClick={()=>{setDelivery('delivery')}}
-          >
-            🛵 Recibir a domicilio
-          </div>
+          {
+            isOpenProducts &&
+            <div className='flex items-center text-md font-semibold py-2'>
+              <MdDeliveryDining className='h-6 w-6 mr-2'/>
+              Envío
+            </div>
+          }
         </div>
 
       <div className='flex flex-col'>
@@ -204,7 +216,6 @@ const AddOrder = () => {
       }
       
     </form>
-    {/* <button onClick={showModal}>Pagá con MODO</button> */}
     <div className='flex'>
       <button 
       className='mt-8 text-xl text-white p-3 bg-blue-500 rounded-lg mx-auto shadow-lg shadow-black/40'

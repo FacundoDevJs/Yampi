@@ -5,10 +5,12 @@ import ArrowBack from "../components/ArrowBack"
 
 import toast from "react-hot-toast"
 
-import { FiShoppingBag } from 'react-icons/fi'
+import { FiPackage, FiShoppingBag } from 'react-icons/fi'
+import { FaWhatsapp } from "react-icons/fa6";
 
 import image from "./mercadopago.png"
 import { useEffect, useState } from "react"
+import { FaCheck, FaRegTrashAlt } from "react-icons/fa"
 
 const OrderPage = () => {
 
@@ -60,7 +62,7 @@ const OrderPage = () => {
       setOrder(orderCalled)
       const date = new Date(orderCalled?.created_at.seconds * 1000)
       setDate(date)
-      console.log("LLAMADA")
+      console.log(orderCalled)
     }
 
     const order = orders.filter((order) => order?.id === params.id)[0]
@@ -68,6 +70,7 @@ const OrderPage = () => {
       const date = new Date(order?.created_at.seconds * 1000)
       setDate(date)
       setOrder(order)
+      console.log(order)
     } else {
       callData()
     }
@@ -103,14 +106,15 @@ const OrderPage = () => {
             🧑 {order?.name}
           </div>
           <div> 
-            📱 {order?.phone_number}
+            🕥 {date?.getDate()}/{date?.getMonth() + 1}/{date?.getHours()}:{date?.getMinutes()}
           </div>
-          <div> 
-          🕥 {date?.getDate()}/{date?.getMonth() + 1}/{date?.getHours()}:{date?.getMinutes()}
-          </div>
-          <div> 
-            Puntos obtenidos: {order?.points}
-          </div>
+          <a
+          target="_blank"
+          href={`https://api.whatsapp.com/send?phone=54${order?.phone_number}`}
+          className='bg-lime-400 p-4 inline-block rounded-2xl'
+          >
+            <FaWhatsapp className="w-8 h-8"/>
+          </a>
 
         </div>
         <div className="max-w-[700px] rounded-lg w-[90vw] m-auto text-lg">
@@ -133,6 +137,18 @@ const OrderPage = () => {
                 <div>
                   <div className="font-semibold pt-4">Pago Realizado a través de:</div>
                   <img src={image} className='w-8 h-6 inline mr-1'/> Mercado Pago
+                  {
+                    order?.paid === true 
+                    ?
+                    <div>
+                      Pagado ✅
+                    </div>
+                    :
+                    
+                    <div>
+                      No Pagado ❌
+                    </div>
+                  }
                 </div>
               }
             </div> 
@@ -144,11 +160,6 @@ const OrderPage = () => {
                   </div>
                    🏠 {order?.address}
                 </div> 
-              {
-                order?.delivery === 'delivery'
-                ? '🛵 Entrega a domicilio'
-                : '🏢 Retira en el local'
-              }
             </div>
           </div>
       <h1 className="pl-6 text-3xl my-6 font-bold text-white max-w-[650px] w-full m-auto">
@@ -198,7 +209,7 @@ const OrderPage = () => {
               setOrderState('incompleted')
             }}
             className='shadow-md shadow-black/60 p-2 bg-white rounded-xl flex hover:shadow-black/80'>
-              📦
+            <FiPackage/>
             </button>
             :
             orderState === 'incompleted'
@@ -209,7 +220,7 @@ const OrderPage = () => {
               setOrderState('completed')
             }}
             className='shadow-md shadow-black/60 p-2 bg-white rounded-xl flex hover:shadow-black/80'>
-              👍
+              <FaCheck/>
             </button> 
             :
             order?.completed
@@ -220,7 +231,7 @@ const OrderPage = () => {
               setOrderState('incompleted')
             }}
             className='shadow-md shadow-black/60 p-2 bg-white rounded-xl flex hover:shadow-black/80'>
-              📦
+              <FiPackage/>
             </button>
             :<button
             onClick={()=>{
@@ -228,14 +239,14 @@ const OrderPage = () => {
               setOrderState('completed')
             }}
             className='shadow-md shadow-black/60 p-2 bg-white rounded-xl flex hover:shadow-black/80'>
-              👍
+              <FaCheck/>
             </button> 
             }
           
           <button 
           onClick={handleDelete}
           className='shadow-md shadow-black/60 p-2 bg-white rounded-xl flex hover:shadow-black/80'>
-            🗑️ 
+          <FaRegTrashAlt/>
           </button>
         </div>
     </div>
